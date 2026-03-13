@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agri ML - Crop Yield & Disease Detection</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        h1 { color: #2d5016; margin-bottom: 8px; }
+        .subtitle { color: #666; margin-bottom: 24px; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .card h2 { margin-top: 0; color: #2d5016; font-size: 1.2rem; }
+        label { display: block; margin-top: 12px; font-weight: 500; color: #333; }
+        input, select { width: 100%; max-width: 280px; padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px; }
+        button { background: #2d5016; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 12px; font-size: 1rem; }
+        button:hover { background: #3d6b1f; }
+        .result { margin-top: 16px; padding: 12px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #2d5016; white-space: pre-wrap; font-family: monospace; font-size: 0.9rem; }
+        .result.error { border-left-color: #c00; background: #fff5f5; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+    </style>
+</head>
+<body>
+    <h1>🌾 Agri ML Service</h1>
+    <p class="subtitle">Crop Yield Prediction & Plant Disease Detection</p>
+
+    <div class="card">
+        <h2>1. Predict Crop Yield</h2>
+        <div class="grid">
+            <div>
+                <label>Crop Type</label>
+                <input type="text" id="cropType" value="wheat" placeholder="e.g. wheat, rice, maize">
+            </div>
+            <div>
+                <label>Area (hectares)</label>
+                <input type="number" id="areaHectares" value="5.0" step="0.1" min="0">
+            </div>
+            <div>
+                <label>Seasonal Rainfall (mm)</label>
+                <input type="number" id="seasonalRainfallMm" value="900" min="0">
+            </div>
+            <div>
+                <label>Nitrogen Fertilizer (kg/ha)</label>
+                <input type="number" id="nitrogenFertilizerKgPerHa" value="120" min="0">
+            </div>
+            <div>
+                <label>Soil Organic Carbon (%)</label>
+                <input type="number" id="soilOrganicCarbonPct" value="2.1" step="0.1" min="0" max="10">
+            </div>
+            <div>
+                <label>Avg Temperature (°C)</label>
+                <input type="number" id="avgTemperatureC" value="24" min="-10" max="50">
+            </div>
+            <div>
+                <label>Historical Yield (ton/ha, optional)</label>
+                <input type="number" id="historicalYieldTonPerHa" value="3.2" step="0.1" min="0" placeholder="optional">
+            </div>
+        </div>
+        <button onclick="predictYield()">Predict Yield</button>
+        <div id="yieldResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="card">
+        <h2>2. Detect Plant Disease</h2>
+        <div class="grid">
+            <div>
+                <label>Crop Type</label>
+                <input type="text" id="diseaseCropType" value="wheat" placeholder="e.g. wheat">
+            </div>
+            <div>
+                <label>Leaf Color</label>
+                <select id="leafColor">
+                    <option value="GREEN">GREEN</option>
+                    <option value="YELLOW" selected>YELLOW</option>
+                    <option value="BROWN">BROWN</option>
+                </select>
+            </div>
+            <div>
+                <label>Has Spots?</label>
+                <select id="hasSpots">
+                    <option value="false">No</option>
+                    <option value="true" selected>Yes</option>
+                </select>
+            </div>
+            <div>
+                <label>Spots Color</label>
+                <select id="spotsColor">
+                    <option value="">None</option>
+                    <option value="RUSTY_ORANGE" selected>RUSTY_ORANGE</option>
+                    <option value="DARK_BROWN">DARK_BROWN</option>
+                    <option value="WHITE">WHITE</option>
+                </select>
+            </div>
+            <div>
+                <label>Humidity (%)</label>
+                <input type="number" id="humidityPct" value="80" min="0" max="100">
+            </div>
+            <div>
+                <label>Temperature (°C)</label>
+                <input type="number" id="temperatureC" value="24" min="-10" max="50">
+            </div>
+            <div>
+                <label>Soil Moisture (%)</label>
+                <input type="number" id="soilMoisturePct" value="55" min="0" max="100">
+            </div>
+        </div>
+        <button onclick="detectDisease()">Detect Disease</button>
+        <div id="diseaseResult" class="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        const baseUrl = '';
+
+        async function predictYield() {
+            const el = document.getElementById('yieldResult');
+            el.style.display = 'block';
+            el.className = 'result';
+            el.textContent = 'Loading...';
+
+            const hist = document.getElementById('historicalYieldTonPerHa').value;
+            const body = {
+                cropType: document.getElementById('cropType').value,
+                areaHectares: parseFloat(document.getElementById('areaHectares').value),
+                seasonalRainfallMm: parseFloat(document.getElementById('seasonalRainfallMm').value),
+                nitrogenFertilizerKgPerHa: parseFloat(document.getElementById('nitrogenFertilizerKgPerHa').value),
+                soilOrganicCarbonPct: parseFloat(document.getElementById('soilOrganicCarbonPct').value),
+                avgTemperatureC: parseFloat(document.getElementById('avgTemperatureC').value),
+                historicalYieldTonPerHa: hist ? parseFloat(hist) : null
+            };
+
+            try {
+                const res = await fetch(baseUrl + '/api/crops/predict-yield', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                el.textContent = JSON.stringify(data, null, 2);
+            } catch (e) {
+                el.className = 'result error';
+                el.textContent = 'Error: ' + e.message;
+            }
+        }
+
+        async function detectDisease() {
+            const el = document.getElementById('diseaseResult');
+            el.style.display = 'block';
+            el.className = 'result';
+            el.textContent = 'Loading...';
+
+            const spotsColorEl = document.getElementById('spotsColor');
+            const body = {
+                cropType: document.getElementById('diseaseCropType').value,
+                leafColor: document.getElementById('leafColor').value,
+                hasSpots: document.getElementById('hasSpots').value === 'true',
+                spotsColor: spotsColorEl.value || null,
+                humidityPct: parseFloat(document.getElementById('humidityPct').value),
+                temperatureC: parseFloat(document.getElementById('temperatureC').value),
+                soilMoisturePct: parseFloat(document.getElementById('soilMoisturePct').value)
+            };
+
+            try {
+                const res = await fetch(baseUrl + '/api/plants/detect-disease', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                el.textContent = JSON.stringify(data, null, 2);
+            } catch (e) {
+                el.className = 'result error';
+                el.textContent = 'Error: ' + e.message;
+            }
+        }
+    </script>
+</body>
+</html>

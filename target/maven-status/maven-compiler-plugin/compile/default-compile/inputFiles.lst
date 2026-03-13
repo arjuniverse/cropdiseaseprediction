@@ -1,0 +1,12 @@
+C:\Users\arjun\OneDrive\Desktop\aRJUN\cloudAAT\src\main\java\com\cloudaat\agriml\AgriMlApplication.java
+C:\Users\arjun\OneDrive\Desktop\aRJUN\cloudAAT\src\main\java\com\cloudaat\agriml\crop\api\CropYieldRequest.java
+C:\Users\arjun\OneDrive\Desktop\aRJUN\cloudAAT\src\main\java\com\cloudaat\agriml\crop\api\CropYieldResponse.java
+C:\Users\arjun\OneDrive\Desktop\aRJUN\cloudAAT\src\main\java\com\cloudaat\agriml\crop\service\CropYieldModelService.java
+C:\Users\arjun\OneDrive\Desktop\aRJUN\cloudAAT\src\main\java\com\cloudaat\agriml\crop\web\CropController.java
+C:\Users\arjun\OneDrive\Desktop\aRJUN\cloudAAT\src\main\java\com\cloudaat\agriml\disease\api\PlantDiseaseRequest.java
+C:\Users\arjun\OneDrive\Desktop\aRJUN\cloudAAT\src\main\java\com\cloudaat\agriml\disease\api\PlantDiseaseResponse.java
+C:\Users\arjun\OneDrive\Desktop\aRJUN\cloudAAT\src\main\java\com\cloudaat\agriml\disease\service\PlantDiseaseModelService.java
+C:\Users\arjun\OneDrive\Desktop\aRJUN\cloudAAT\src\main\java\com\cloudaat\agriml\disease\web\PlantDiseaseController.java
+C:\Users\arjun\OneDrive\Desktop\aRJUN\cloudAAT\src\main\java\com\cloudaat\agriml\record\model\CropYieldRecord.java
+C:\Users\arjun\OneDrive\Desktop\aRJUN\cloudAAT\src\main\java\com\cloudaat\agriml\record\service\CropRecordService.java
+C:\Users\arjun\OneDrive\Desktop\aRJUN\cloudAAT\src\main\java\com\cloudaat\agriml\record\web\CropRecordController.java
