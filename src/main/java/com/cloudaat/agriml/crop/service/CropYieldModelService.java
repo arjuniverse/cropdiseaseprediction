@@ -2,10 +2,17 @@ package com.cloudaat.agriml.crop.service;
 
 import com.cloudaat.agriml.crop.api.CropYieldRequest;
 import com.cloudaat.agriml.crop.api.CropYieldResponse;
+import com.cloudaat.agriml.dataset.CropDatasetLoader;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CropYieldModelService {
+
+    private final CropDatasetLoader datasetLoader;
+
+    public CropYieldModelService(CropDatasetLoader datasetLoader) {
+        this.datasetLoader = datasetLoader;
+    }
 
     /**
      * Tiny embedded regression-style model.
@@ -22,7 +29,7 @@ public class CropYieldModelService {
         double temperature = request.getAvgTemperatureC();
         double historical = request.getHistoricalYieldTonPerHa() != null
                 ? request.getHistoricalYieldTonPerHa()
-                : 2.5;
+                : datasetLoader.getAverageYieldForCrop(request.getCropType()).orElse(2.5);
 
         // Penalise temperatures far from the 20–26°C sweet spot
         double tempPenalty = Math.max(0, Math.abs(23.0 - temperature) - 3.0) * 0.08;
