@@ -6,115 +6,471 @@
     <title>Agri ML - Crop Yield & Disease Detection</title>
     <style>
         * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
-        h1 { color: #2d5016; margin-bottom: 8px; }
-        .subtitle { color: #666; margin-bottom: 24px; }
-        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .card h2 { margin-top: 0; color: #2d5016; font-size: 1.2rem; }
-        label { display: block; margin-top: 12px; font-weight: 500; color: #333; }
-        input, select { width: 100%; max-width: 280px; padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px; }
-        button { background: #2d5016; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 12px; font-size: 1rem; }
-        button:hover { background: #3d6b1f; }
-        .result { margin-top: 16px; padding: 12px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #2d5016; white-space: pre-wrap; font-family: monospace; font-size: 0.9rem; }
-        .result.error { border-left-color: #c00; background: #fff5f5; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at top left, #1b5e20 0, #0d1b1e 45%, #000000 100%);
+            color: #f9fafb;
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+        }
+
+        .app-shell {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+        }
+
+        @media (min-width: 960px) {
+            .app-shell {
+                flex-direction: row;
+                align-items: stretch;
+            }
+        }
+
+        .sidebar {
+            flex: 0 0 260px;
+            background: linear-gradient(160deg, rgba(15,23,42,0.95), rgba(22,101,52,0.85));
+            border-radius: 18px;
+            padding: 24px 20px;
+            box-shadow: 0 18px 45px rgba(0,0,0,0.55);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .sidebar h1 {
+            font-size: 1.8rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-pill {
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            background: radial-gradient(circle at 30% 20%, #facc15, #65a30d);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .subtitle {
+            color: #cbd5f5;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            color: #e5e7eb;
+        }
+
+        .stat-card {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(55, 65, 81, 0.7);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            font-size: 0.8rem;
+        }
+
+        .stat-label {
+            color: #9ca3af;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #bbf7d0;
+        }
+
+        .main-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .tabs {
+            display: inline-flex;
+            align-self: flex-start;
+            padding: 3px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.9);
+            box-shadow: 0 14px 40px rgba(15,23,42,0.75);
+        }
+
+        .tab {
+            border: none;
+            padding: 8px 18px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            background: transparent;
+            color: #9ca3af;
+            transition: all 0.18s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #22c55e, #84cc16);
+            color: #022c22;
+            font-weight: 600;
+        }
+
+        .panels {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card {
+            background: radial-gradient(circle at top left, rgba(15,23,42,0.9), rgba(15,23,42,0.96));
+            border-radius: 16px;
+            padding: 20px 18px 18px;
+            box-shadow: 0 18px 45px rgba(0,0,0,0.7);
+            border: 1px solid rgba(55,65,81,0.9);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            margin: 0;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chip {
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            background: rgba(22,163,74,0.16);
+            color: #bbf7d0;
+            border: 1px solid rgba(34,197,94,0.3);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 10px 14px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            color: #e5e7eb;
+        }
+
+        .field-caption {
+            font-size: 0.7rem;
+            color: #9ca3af;
+            margin-top: -2px;
+            margin-bottom: 4px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(75,85,99,0.9);
+            background: rgba(15,23,42,0.95);
+            color: #f9fafb;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: #22c55e;
+            box-shadow: 0 0 0 1px rgba(34,197,94,0.6);
+            background: rgba(15,23,42,1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #22c55e, #84cc16);
+            color: #022c22;
+            border: none;
+            padding: 9px 20px;
+            border-radius: 999px;
+            cursor: pointer;
+            margin-top: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 12px 30px rgba(34,197,94,0.45);
+            transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 16px 40px rgba(34,197,94,0.60);
+            filter: brightness(1.03);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 10px 24px rgba(34,197,94,0.40);
+        }
+
+        .button-secondary {
+            background: rgba(15,23,42,0.9);
+            color: #e5e7eb;
+            box-shadow: none;
+            border: 1px solid rgba(75,85,99,0.9);
+        }
+
+        .button-secondary:hover {
+            box-shadow: 0 8px 20px rgba(15,23,42,0.8);
+        }
+
+        .result {
+            margin-top: 14px;
+            padding: 10px 12px;
+            background: rgba(15,23,42,0.96);
+            border-radius: 12px;
+            border: 1px solid rgba(34,197,94,0.4);
+            white-space: pre-wrap;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.8rem;
+            max-height: 240px;
+            overflow: auto;
+        }
+
+        .result.error {
+            border-color: rgba(239,68,68,0.7);
+            background: rgba(127,29,29,0.92);
+        }
+
+        .footer-note {
+            margin-top: 4px;
+            font-size: 0.72rem;
+            color: #9ca3af;
+        }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
-    <h1>🌾 Agri ML Service</h1>
-    <p class="subtitle">Crop Yield Prediction & Plant Disease Detection</p>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <h1>
+                <span class="logo-pill">🌾</span>
+                <span>Agri ML</span>
+            </h1>
+            <p class="subtitle">
+                Smart assistant for predicting crop yield and detecting plant diseases,
+                powered by tiny embedded ML models.
+            </p>
+            <div class="badge-row">
+                <span class="badge">Spring Boot API</span>
+                <span class="badge">Regression &amp; Classification</span>
+                <span class="badge">Demo Dashboard</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Status</span>
+                <span class="stat-value" id="statusText">Online</span>
+                <span class="footer-note">Connected to localhost:8080</span>
+            </div>
+        </aside>
 
-    <div class="card">
-        <h2>1. Predict Crop Yield</h2>
-        <div class="grid">
-            <div>
-                <label>Crop Type</label>
-                <input type="text" id="cropType" value="wheat" placeholder="e.g. wheat, rice, maize">
+        <main class="main-pane">
+            <div class="tabs">
+                <button class="tab active" id="tab-yield" onclick="switchTab('yield')">
+                    <span>📈 Yield</span>
+                </button>
+                <button class="tab" id="tab-disease" onclick="switchTab('disease')">
+                    <span>🩺 Disease</span>
+                </button>
             </div>
-            <div>
-                <label>Area (hectares)</label>
-                <input type="number" id="areaHectares" value="5.0" step="0.1" min="0">
-            </div>
-            <div>
-                <label>Seasonal Rainfall (mm)</label>
-                <input type="number" id="seasonalRainfallMm" value="900" min="0">
-            </div>
-            <div>
-                <label>Nitrogen Fertilizer (kg/ha)</label>
-                <input type="number" id="nitrogenFertilizerKgPerHa" value="120" min="0">
-            </div>
-            <div>
-                <label>Soil Organic Carbon (%)</label>
-                <input type="number" id="soilOrganicCarbonPct" value="2.1" step="0.1" min="0" max="10">
-            </div>
-            <div>
-                <label>Avg Temperature (°C)</label>
-                <input type="number" id="avgTemperatureC" value="24" min="-10" max="50">
-            </div>
-            <div>
-                <label>Historical Yield (ton/ha, optional)</label>
-                <input type="number" id="historicalYieldTonPerHa" value="3.2" step="0.1" min="0" placeholder="optional">
-            </div>
-        </div>
-        <button onclick="predictYield()">Predict Yield</button>
-        <div id="yieldResult" class="result" style="display:none;"></div>
-    </div>
 
-    <div class="card">
-        <h2>2. Detect Plant Disease</h2>
-        <div class="grid">
-            <div>
-                <label>Crop Type</label>
-                <input type="text" id="diseaseCropType" value="wheat" placeholder="e.g. wheat">
+            <div class="panels">
+                <section id="panel-yield">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <span>Predict Crop Yield</span>
+                                <span class="chip">Regression Model</span>
+                            </h2>
+                        </div>
+                        <div class="grid">
+                            <div>
+                                <label>Crop Type</label>
+                                <div class="field-caption">e.g. wheat, rice, maize</div>
+                                <input type="text" id="cropType" value="wheat" placeholder="wheat">
+                            </div>
+                            <div>
+                                <label>Area (hectares)</label>
+                                <div class="field-caption">Field size in ha</div>
+                                <input type="number" id="areaHectares" value="5.0" step="0.1" min="0">
+                            </div>
+                            <div>
+                                <label>Seasonal Rainfall (mm)</label>
+                                <div class="field-caption">Total during growing season</div>
+                                <input type="number" id="seasonalRainfallMm" value="900" min="0">
+                            </div>
+                            <div>
+                                <label>Nitrogen Fertilizer (kg/ha)</label>
+                                <div class="field-caption">Total N applied per hectare</div>
+                                <input type="number" id="nitrogenFertilizerKgPerHa" value="120" min="0">
+                            </div>
+                            <div>
+                                <label>Soil Organic Carbon (%)</label>
+                                <div class="field-caption">Typical range: 0–5%</div>
+                                <input type="number" id="soilOrganicCarbonPct" value="2.1" step="0.1" min="0" max="10">
+                            </div>
+                            <div>
+                                <label>Avg Temperature (°C)</label>
+                                <div class="field-caption">During growing season</div>
+                                <input type="number" id="avgTemperatureC" value="24" min="-10" max="50">
+                            </div>
+                            <div>
+                                <label>Historical Yield (ton/ha, optional)</label>
+                                <div class="field-caption">Leave empty to use dataset default</div>
+                                <input type="number" id="historicalYieldTonPerHa" value="3.2" step="0.1" min="0" placeholder="optional">
+                            </div>
+                        </div>
+                        <button onclick="predictYield()">Run Yield Model</button>
+                        <div id="yieldResult" class="result hidden"></div>
+                        <div class="footer-note">
+                            Uses a regression-style model with rainfall, fertilizer, soil, temperature and historical yield.
+                        </div>
+                    </div>
+                </section>
+
+                <section id="panel-disease" class="hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <span>Detect Plant Disease</span>
+                                <span class="chip">Classification Model</span>
+                            </h2>
+                        </div>
+                        <div class="grid">
+                            <div>
+                                <label>Crop Type</label>
+                                <div class="field-caption">e.g. wheat, rice, maize</div>
+                                <input type="text" id="diseaseCropType" value="wheat" placeholder="wheat">
+                            </div>
+                            <div>
+                                <label>Leaf Color</label>
+                                <div class="field-caption">Dominant colour of affected leaves</div>
+                                <select id="leafColor">
+                                    <option value="GREEN">GREEN</option>
+                                    <option value="YELLOW" selected>YELLOW</option>
+                                    <option value="BROWN">BROWN</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Has Spots?</label>
+                                <div class="field-caption">Visible lesions or spots</div>
+                                <select id="hasSpots">
+                                    <option value="false">No</option>
+                                    <option value="true" selected>Yes</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Spots Color</label>
+                                <div class="field-caption">If spots are present</div>
+                                <select id="spotsColor">
+                                    <option value="">None</option>
+                                    <option value="RUSTY_ORANGE" selected>RUSTY_ORANGE</option>
+                                    <option value="DARK_BROWN">DARK_BROWN</option>
+                                    <option value="WHITE">WHITE</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Humidity (%)</label>
+                                <div class="field-caption">Current or recent humidity</div>
+                                <input type="number" id="humidityPct" value="80" min="0" max="100">
+                            </div>
+                            <div>
+                                <label>Temperature (°C)</label>
+                                <div class="field-caption">Current or recent temp</div>
+                                <input type="number" id="temperatureC" value="24" min="-10" max="50">
+                            </div>
+                            <div>
+                                <label>Soil Moisture (%)</label>
+                                <div class="field-caption">Approximate moisture level</div>
+                                <input type="number" id="soilMoisturePct" value="55" min="0" max="100">
+                            </div>
+                        </div>
+                        <button onclick="detectDisease()">Run Disease Model</button>
+                        <div id="diseaseResult" class="result hidden"></div>
+                        <div class="footer-note">
+                            Outputs a predicted label (e.g. HEALTHY, LEAF_BLIGHT) and probabilities for each class.
+                        </div>
+                    </div>
+                </section>
             </div>
-            <div>
-                <label>Leaf Color</label>
-                <select id="leafColor">
-                    <option value="GREEN">GREEN</option>
-                    <option value="YELLOW" selected>YELLOW</option>
-                    <option value="BROWN">BROWN</option>
-                </select>
-            </div>
-            <div>
-                <label>Has Spots?</label>
-                <select id="hasSpots">
-                    <option value="false">No</option>
-                    <option value="true" selected>Yes</option>
-                </select>
-            </div>
-            <div>
-                <label>Spots Color</label>
-                <select id="spotsColor">
-                    <option value="">None</option>
-                    <option value="RUSTY_ORANGE" selected>RUSTY_ORANGE</option>
-                    <option value="DARK_BROWN">DARK_BROWN</option>
-                    <option value="WHITE">WHITE</option>
-                </select>
-            </div>
-            <div>
-                <label>Humidity (%)</label>
-                <input type="number" id="humidityPct" value="80" min="0" max="100">
-            </div>
-            <div>
-                <label>Temperature (°C)</label>
-                <input type="number" id="temperatureC" value="24" min="-10" max="50">
-            </div>
-            <div>
-                <label>Soil Moisture (%)</label>
-                <input type="number" id="soilMoisturePct" value="55" min="0" max="100">
-            </div>
-        </div>
-        <button onclick="detectDisease()">Detect Disease</button>
-        <div id="diseaseResult" class="result" style="display:none;"></div>
+        </main>
     </div>
 
     <script>
         const baseUrl = '';
 
+        function switchTab(tab) {
+            const yieldTab = document.getElementById('tab-yield');
+            const diseaseTab = document.getElementById('tab-disease');
+            const yieldPanel = document.getElementById('panel-yield');
+            const diseasePanel = document.getElementById('panel-disease');
+
+            if (tab === 'yield') {
+                yieldTab.classList.add('active');
+                diseaseTab.classList.remove('active');
+                yieldPanel.classList.remove('hidden');
+                diseasePanel.classList.add('hidden');
+            } else {
+                diseaseTab.classList.add('active');
+                yieldTab.classList.remove('active');
+                diseasePanel.classList.remove('hidden');
+                yieldPanel.classList.add('hidden');
+            }
+        }
+
         async function predictYield() {
             const el = document.getElementById('yieldResult');
-            el.style.display = 'block';
             el.className = 'result';
+            el.classList.remove('hidden');
             el.textContent = 'Loading...';
 
             const hist = document.getElementById('historicalYieldTonPerHa').value;
@@ -144,8 +500,8 @@
 
         async function detectDisease() {
             const el = document.getElementById('diseaseResult');
-            el.style.display = 'block';
             el.className = 'result';
+            el.classList.remove('hidden');
             el.textContent = 'Loading...';
 
             const spotsColorEl = document.getElementById('spotsColor');
